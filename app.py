@@ -32,7 +32,7 @@ ROLES = {
 # They are never shown on the page, so visitors cannot see them.
 SERVER_GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 SERVER_OWM_KEY = os.environ.get("OPENWEATHER_API_KEY", "")
-APP_PASSWORD = os.environ.get("APP_PASSWORD", "")  # optional
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "").strip()  # optional
 
 with st.sidebar:
     st.header("🔑 Keys")
@@ -47,10 +47,6 @@ with st.sidebar:
         owm_key = SERVER_OWM_KEY
     else:
         owm_key = st.text_input("OpenWeatherMap key", type="password")
-
-    if APP_PASSWORD:
-        entered = st.text_input("Access code", type="password",
-                                help="Ask the owner of this site for the code.")
 
     st.header("🤖 The team")
     for name, role in ROLES.items():
@@ -199,11 +195,15 @@ st.write("Type a city. Four AI agents will check the live weather and plan your 
 
 with st.form("trip"):
     city = st.text_input("Where are you going?", placeholder="e.g. Chennai, IN  or  London, GB")
+    entered = ""
+    if APP_PASSWORD:
+        entered = st.text_input("Access code", type="password",
+                                help="Ask the owner of this site for the code.")
     go = st.form_submit_button("Plan my trip", type="primary")
 
 if go:
-    if APP_PASSWORD and entered != APP_PASSWORD:
-        st.error("Please enter the correct access code in the sidebar.")
+    if APP_PASSWORD and entered.strip() != APP_PASSWORD:
+        st.error("Wrong access code. Please type the code in the **Access code** box above.")
         st.stop()
     if not groq_key or not owm_key:
         st.error("Please enter both keys in the sidebar.")
